@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quotation Automation App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 30px;
+      }
+      h1 { color: #333; }
+      input, button {
+        padding: 10px;
+        margin: 5px 0;
+        font-size: 16px;
+      }
+      button {
+        background: #0078d7;
+        border: none;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:hover { background: #005fa3; }
+      .section { margin-bottom: 30px; }
+    </style>
+  </head>
+  <body>
+    <h1>Quotation Automation App</h1>
+
+    <div class="section">
+      <button id="test-btn">Test Backend Connection</button>
+    </div>
+
+    <div class="section">
+      <h3>Login</h3>
+      <input id="email" type="email" placeholder="Email" value="user@example.com" /><br/>
+      <input id="password" type="password" placeholder="Password" value="password123" /><br/>
+      <button id="login-btn">Login</button>
+    </div>
+
+    <div class="section">
+      <h3>Inventory</h3>
+      <button id="inventory-btn">Fetch Inventory</button>
+      <pre id="inventory-output"></pre>
+    </div>
+
+    <div class="section">
+      <h3>Verify Subscription</h3>
+      <button id="verify-btn">Verify Subscription</button>
+      <p id="verify-output"></p>
+    </div>
+
+    <script>
+      let token = null; // store JWT token in memory
+      let userId = null;
+
+      const backendUrl = "http://localhost:4000";
+
+      // ------------------ Test backend ------------------
+      document.getElementById("test-btn").addEventListener("click", async () => {
+        try {
+          const res = await fetch(`${backendUrl}/`);
+          const text = await res.text();
+          alert("Backend says: " + text);
+        } catch (err) {
+          console.error(err);
+          alert("Backend not reachable.");
+        }
+      });
+
+      // ------------------ Login ------------------
+      document.getElementById("login-btn").addEventListener("click", async () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const res = await fetch(`${backendUrl}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            token = data.token;
+            userId = data.userId;
+            alert("Login successful! Token stored in memory.");
+          } else {
+            alert("Login failed: " + data.error);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Login error");
+        }
+      });
+
+      // ------------------ Fetch inventory ------------------
+      document.getElementById("inventory-btn").addEventListener("click", async () => {
+        if (!token) return alert("Please login first.");
+        try {
+          const res = await fetch(`${backendUrl}/inventory`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (res.ok) {
+            document.getElementById("inventory-output").textContent = JSON.stringify(data, null, 2);
+          } else {
+            alert("Error: " + data.error);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Could not fetch inventory");
+        }
+      });
+
+      // ------------------ Verify subscription ------------------
+      document.getElementById("verify-btn").addEventListener("click", async () => {
+        if (!userId) return alert("Please login first.");
+        try {
+          const res = await fetch(`${backendUrl}/verify-subscription/${userId}`);
+          const data = await res.json();
+          if (res.ok) {
+            document.getElementById("verify-output").textContent = data.subscriptionActive
+              ? "Subscription active ✅"
+              : "Subscription inactive ❌";
+          } else {
+            alert("Error: " + data.error);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Could not verify subscription");
+        }
+      });
+    </script>
+  </body>
+</html>

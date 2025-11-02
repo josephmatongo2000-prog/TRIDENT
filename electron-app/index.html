@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quotation Automation App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { margin: 5px 0; display: block; }
+    #inventory-list { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Quotation Automation App</h1>
+
+  <!-- LOGIN -->
+  <h2>Login</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="login">Login</button>
+  <p id="login-response"></p>
+
+  <hr>
+
+  <!-- TEST BACKEND -->
+  <h2>Test Backend Connection</h2>
+  <button id="test-api">Test Backend</button>
+  <p id="response"></p>
+
+  <hr>
+
+  <!-- INVENTORY -->
+  <h2>Inventory</h2>
+  <button id="fetch-inventory">Fetch Inventory</button>
+  <ul id="inventory-list"></ul>
+
+  <hr>
+
+  <!-- SUBSCRIPTION -->
+  <h2>Subscription</h2>
+  <button id="check-subscription">Check Subscription</button>
+  <p id="subscription-status"></p>
+  <button id="mark-paid" style="display:none;">I Paid via Mobile/Bank</button>
+
+  <script>
+    // ------------------------------
+    // In-memory storage
+    // ------------------------------
+    let jwtToken = null;
+    let userId = null;
+
+    // ------------------------------
+    // LOGIN
+    // ------------------------------
+    document.getElementById("login").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await fetch("http://localhost:4000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.token) {
+          jwtToken = data.token;
+          userId = data.userId;
+          document.getElementById("login-response").innerText =
+            `✅ Login successful! Subscription active: ${data.subscriptionActive}`;
+        } else {
+          document.getElementById("login-response").innerText = `❌ ${data.error}`;
+        }
+      } catch (err) {
+        document.getElementById("login-response").innerText = `⚠️ Login failed: ${err.message}`;
+        console.error(err);
+      }
+    });
+
+    // ------------------------------
+    // TEST BACKEND
+    // ------------------------------
+    document.getElementById("test-api").addEventListener("click", async () => {
+      try {
+        const res = await fetch("http://localhost:4000");
+        const data = await res.text();
+        document.getElementById("response").innerText = data;
+      } catch (err) {
+        document.getElementById("response").innerText = "⚠️ Could not connect to backend!";
+        console.error(err);
+      }
+    });
+
+    // ------------------------------
+    // FETCH INVENTORY (Authenticated)
+    // ------------------------------
+    document.getElementById("fetch-inventory").addEventListener("click", async () => {
+      if (!jwtToken) { alert("Please login first!"); return; }
+
+      try {
+        const res = await fetch("http://localhost:4000/inventory", {
+          headers: { "Authorization": `Bearer ${jwtToken}` }
+        });
+        const inventory = await res.json();
+
+        const list = document.getElementById("inventory-list");
+        list.innerHTML = "";
+        inventory.forEach(item => {
+          const li = document.createElement("li");
+          li.innerText = `${item.name} - Stock: ${item.stock} - Price: ${item.price}`;
+          list.appendChild(li);
+        });
+      } catch (err) {
+        alert("Failed to fetch inventory. Check backend or login.");
+        console.error(err);
+      }
+    });
+
+    // ------------------------------
+    // SUBSCRIPTION CHECK
+    // ------------------------------
+    document.getElementById("check-subscription").addEventListener("click", async () => {
+      if (!userId || !jwtToken) { alert("Please login first!"); return; }
+
+      try {
+        const res = await fetch(`http://localhost:4000/verify-subscription/${userId}`, {
+          headers: { "Authorization": `Bearer ${jwtToken}` }
+        });
+        const data = await res.json();
+
+        if (data.subscriptionActive) {
+          document.getElementById("subscription-status").innerText = "✅ Your subscription is active!";
+          document.getElementById("mark-paid").style.display = "none";
+        } else {
+          document.getElementById("subscription-status").innerText =
+            "⚠️ You are not subscribed. Please pay via mobile/bank.";
+          document.getElementById("mark-paid").style.display = "inline-block";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("subscription-status").innerText = "Failed to check subscription.";
+      }
+    });
+
+    // ------------------------------
+    // MARK AS PAID (manual workflow)
+    // ------------------------------
+    document.getElementById("mark-paid").addEventListener("click", async () => {
+      alert(
+        "Send your mobile/bank payment receipt to the admin. Once verified, your subscription will be activated."
+      );
+    });
+  </script>
+</body>
+</html>

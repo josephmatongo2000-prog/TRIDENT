@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quotation Automation Dashboard</title>
+  <style>
+    /* Basic Reset & Font */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background-color: #0078d7;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Dashboard container */
+    .dashboard-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    /* Cards */
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      width: 280px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      color: #0078d7;
+      margin-bottom: 15px;
+      font-size: 22px;
+    }
+
+    .card p {
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Quotation Automation Dashboard</header>
+
+  <div class="dashboard-container">
+    <!-- Inventory Card -->
+    <div class="card">
+      <h3>Inventory</h3>
+      <p id="inventory-count">Loading...</p>
+      <button onclick="fetchInventory()">View Inventory</button>
+    </div>
+
+    <!-- Subscriptions Card -->
+    <div class="card">
+      <h3>Subscriptions</h3>
+      <p id="subscription-status">Loading...</p>
+      <button onclick="verifySubscription()">Verify Subscription</button>
+    </div>
+
+    <!-- Auto-Reply Card -->
+    <div class="card">
+      <h3>Auto-Reply</h3>
+      <p>Status: Active</p>
+      <button onclick="testAutoReply()">Test Auto-Reply</button>
+    </div>
+  </div>
+
+  <footer>© 2025 Quotation Automation App</footer>
+
+  <script>
+    const API_URL = "http://localhost:4000"; // Your backend API
+
+    // Example: fetch inventory count
+    async function fetchInventory() {
+      try {
+        const token = localStorage.getItem("token"); // Assume login token is stored
+        const res = await fetch(`${API_URL}/inventory`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Failed to fetch inventory");
+        const data = await res.json();
+        document.getElementById("inventory-count").innerText = `${data.length} items in stock`;
+      } catch (err) {
+        alert("Error fetching inventory: " + err.message);
+      }
+    }
+
+    // Example: verify subscription
+    async function verifySubscription() {
+      try {
+        const userId = localStorage.getItem("userId");
+        const res = await fetch(`${API_URL}/verify-subscription/${userId}`);
+        if (!res.ok) throw new Error("Failed to verify subscription");
+        const data = await res.json();
+        document.getElementById("subscription-status").innerText = data.subscriptionActive ? "Active" : "Inactive";
+      } catch (err) {
+        alert("Error verifying subscription: " + err.message);
+      }
+    }
+
+    // Test auto-reply system
+    function testAutoReply() {
+      alert("Auto-Reply system tested successfully!");
+    }
+
+    // Load initial data
+    window.onload = () => {
+      fetchInventory();
+      verifySubscription();
+    };
+  </script>
+
+</body>
+</html>

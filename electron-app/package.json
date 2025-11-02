@@ -1,0 +1,50 @@
+{
+  "name": "quotepro-electron",
+  "version": "1.0.0",
+  "description": "Quote Automation Desktop App",
+  "main": "main.js",
+  "author": "Your Company Name",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server --prefix ../backend-api\" \"npm run dev:web --prefix ../web-app\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:web": "npm run build --prefix ../web-app",
+    "build:server": "npm run build --prefix ../backend-api || echo 'no backend build step'",
+    "build": "npm run build:web && electron-builder",
+    "start": "electron ."
+  },
+  "build": {
+    "appId": "com.quotepro.desktop",
+    "productName": "QuotePro",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "../backend-api/**/*",
+      "../web-app/.next/**/*",
+      "../web-app/package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend-api/",
+        "to": "backend-api",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1",
+    "electron": "^32.0.0",
+    "electron-builder": "^25.1.6",
+    "wait-on": "^7.0.1"
+  }
+}

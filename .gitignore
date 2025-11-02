@@ -1,0 +1,24 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Build outputs
+.next/
+dist/
+out/
+build/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
