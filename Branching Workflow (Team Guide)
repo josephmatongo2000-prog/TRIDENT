@@ -1,0 +1,85 @@
+# 🧠 TRIDENT Development Workflow
+
+To keep our codebase clean and collaborative, we follow a **branch-based workflow**.  
+This ensures that new features, bug fixes, and releases are easy to manage.
+
+---
+
+## 🔱 Branch Naming Convention
+
+| Type | Naming Pattern | Example |
+|------|----------------|----------|
+| Main Branch | `main` | Main stable release branch |
+| Feature | `feature/<short-description>` | feature/payment-gateway |
+| Bug Fix | `fix/<short-description>` | fix/settings-page-alignment |
+| Hotfix (urgent) | `hotfix/<short-description>` | hotfix/api-crash |
+| Release | `release/<version>` | release/v1.2.0 |
+
+---
+
+## 🌿 Workflow Steps
+
+1. **Create a new branch** before starting any work:
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b feature/add-dashboard-ui
+Make changes, test your code locally, and commit often:
+
+bash
+Copy code
+git add .
+git commit -m "Add animated dashboard UI with glassmorphism"
+Push your branch to GitHub:
+
+bash
+Copy code
+git push origin feature/add-dashboard-ui
+Open a Pull Request (PR) on GitHub:
+
+Target branch → main
+
+Add a meaningful title and short description
+
+Request at least one reviewer
+
+After approval, merge it safely through GitHub.
+
+🧩 Code Style Rules
+Use Tailwind CSS + DaisyUI for all front-end styling.
+
+Keep each component modular in /components/ui.
+
+Always use .env files for secrets, never commit them.
+
+Test locally before pushing (npm run dev).
+
+All commits should follow the format:
+
+makefile
+Copy code
+type(scope): message
+
+Examples:
+feat(dashboard): add vibrant animated background
+fix(auth): resolve login redirect issue
+✅ Checklist Before Merging
+ No console errors or warnings
+
+ Proper component folder structure
+
+ All routes work correctly
+
+ Gradient background and UI animations function properly
+
+ No .env or node_modules committed
+
+👥 Roles & Responsibilities
+Role	Responsibility
+Frontend Devs	UI/UX with Tailwind + DaisyUI
+Backend Devs	Node.js + SQLite + API endpoints
+Electron Devs	Desktop app integration
+Lead Dev	Review & approve PRs before merging
+
+yaml
+Copy code
